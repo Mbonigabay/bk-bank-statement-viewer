@@ -454,14 +454,6 @@
             }
         });
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem('bankData');
-            if (saved) {
-                const { data, timestamp, fileName } = JSON.parse(saved);
-                processData(data);
-                updateLastUploadInfo(timestamp, fileName);
-            }
-        });
 
         // Search & Filter Listeners
         document.getElementById('momoSearch').addEventListener('input', () => {
@@ -785,14 +777,9 @@
             if (rawData.length > 0) filterAndProcess();
         }
 
-        // Netlify Identity Integration
-        document.getElementById('loginBtn').addEventListener('click', () => {
-            netlifyIdentity.open();
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            netlifyIdentity.logout();
-        });
+        // Consolidated Netlify Identity Logic
+        document.getElementById('loginBtn')?.addEventListener('click', () => netlifyIdentity.open());
+        document.getElementById('logoutBtn')?.addEventListener('click', () => netlifyIdentity.logout());
 
         netlifyIdentity.on('init', user => {
             if (!user) {
@@ -805,50 +792,66 @@
         netlifyIdentity.on('login', user => {
             netlifyIdentity.close();
             hideAuth();
-            location.reload(); // Refresh to ensure data loads correctly for user
+            // Optional: location.reload() if you want to be absolute, 
+            // but hideAuth should handle visibility.
         });
 
         netlifyIdentity.on('logout', () => {
             showAuth();
-            location.reload();
         });
 
         function showAuth() {
-            document.getElementById('authSection').classList.remove('hidden');
-            document.getElementById('emptyState').classList.add('hidden');
-            document.getElementById('dashboard').classList.add('hidden');
-            document.getElementById('sidebar').classList.add('hidden');
-            document.getElementById('header').classList.add('hidden');
-            document.getElementById('mobileHeader').classList.add('hidden');
             document.body.classList.add('overflow-hidden');
+            const elements = {
+                authSection: false,
+                emptyState: true,
+                dashboard: true,
+                sidebar: true,
+                header: true,
+                mobileHeader: true
+            };
+            Object.keys(elements).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) elements[id] ? el.classList.add('hidden') : el.classList.remove('hidden');
+            });
         }
 
         function hideAuth() {
-            document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('sidebar').classList.remove('hidden');
-            document.getElementById('header').classList.remove('hidden');
-            document.getElementById('mobileHeader').classList.remove('hidden');
             document.body.classList.remove('overflow-hidden');
+            const elements = {
+                authSection: true,
+                sidebar: false,
+                header: false,
+                mobileHeader: false
+            };
+            Object.keys(elements).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) elements[id] ? el.classList.add('hidden') : el.classList.remove('hidden');
+            });
             
             // Check if we have data to show dashboard or empty state
             const saved = localStorage.getItem('bankData');
+            const dashboard = document.getElementById('dashboard');
+            const emptyState = document.getElementById('emptyState');
+            
             if (saved) {
-                document.getElementById('dashboard').classList.remove('hidden');
-                document.getElementById('emptyState').classList.add('hidden');
+                if (dashboard) dashboard.classList.remove('hidden');
+                if (emptyState) emptyState.classList.add('hidden');
+                // Ensure charts and data are rendered
+                try {
+                    const { data, timestamp, fileName } = JSON.parse(saved);
+                    processData(data);
+                    updateLastUploadInfo(timestamp, fileName);
+                } catch(e) { console.error("Data load failed", e); }
             } else {
-                document.getElementById('emptyState').classList.remove('hidden');
+                if (dashboard) dashboard.classList.add('hidden');
+                if (emptyState) emptyState.classList.remove('hidden');
             }
         }
 
-        // Handle Netlify Identity redirect
+        // Initialize Netlify Identity
         if (window.netlifyIdentity) {
-            window.netlifyIdentity.on("init", user => {
-                if (!user) {
-                    window.netlifyIdentity.on("login", () => {
-                        document.location.href = "/";
-                    });
-                }
-            });
+            netlifyIdentity.init();
         }
     </script>
 </body>
