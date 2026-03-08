@@ -86,7 +86,7 @@
 <body class="bg-surface-light dark:bg-surface-dark text-slate-800 dark:text-slate-200 transition-colors duration-300 font-sans">
 
     <!-- Mobile Header -->
-    <div class="lg:hidden flex items-center justify-between p-4 glass sticky-header bg-white/70 dark:bg-slate-900/70 border-b">
+    <div id="mobileHeader" class="lg:hidden flex items-center justify-between p-4 glass sticky-header bg-white/70 dark:bg-slate-900/70 border-b hidden">
         <div class="flex items-center gap-2">
             <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -149,7 +149,7 @@
         <!-- Main Content -->
         <main class="flex-grow lg:ml-64 h-screen overflow-y-auto custom-scrollbar bg-slate-50/50 dark:bg-slate-950/50">
             <div id="top"></div>
-            <header class="p-8 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <header id="header" class="p-8 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4 hidden">
                 <div>
                     <h2 class="text-3xl font-heading font-extrabold text-slate-900 dark:text-white">Financial Insights</h2>
                     <p class="text-slate-500 dark:text-slate-400 font-medium">Welcome back! Here's your Momo summary.</p>
@@ -818,12 +818,16 @@
             document.getElementById('emptyState').classList.add('hidden');
             document.getElementById('dashboard').classList.add('hidden');
             document.getElementById('sidebar').classList.add('hidden');
+            document.getElementById('header').classList.add('hidden');
+            document.getElementById('mobileHeader').classList.add('hidden');
             document.body.classList.add('overflow-hidden');
         }
 
         function hideAuth() {
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('sidebar').classList.remove('hidden');
+            document.getElementById('header').classList.remove('hidden');
+            document.getElementById('mobileHeader').classList.remove('hidden');
             document.body.classList.remove('overflow-hidden');
             
             // Check if we have data to show dashboard or empty state
